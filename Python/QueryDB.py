@@ -20,3 +20,6 @@ class HelloWorldExample(object):
                         "SET a.message = $message "
                         "RETURN a.message + ', from node ' + id(a)", message=message)
         return result.single()[0]
+
+test = HelloWorldExample("bolt://localhost:7687","neo4j","test");
+test.print_greeting("hello");
