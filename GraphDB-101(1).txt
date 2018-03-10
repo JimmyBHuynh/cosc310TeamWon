@@ -1,0 +1,36 @@
+A graph database can store any kind of data using a few simple concepts:
+
+    Nodes - graph data records
+    Relationships - connect nodes
+    Properties - named data values
+
+The simplest graph has just a single node with some named values called Properties. 
+
+    Nodes are the name for data records in a graph
+    Data is stored as Properties
+    Properties are simple name/value pairs
+
+
+Nodes can be grouped together by applying a Label to each member. 
+
+    A node can have zero or more labels
+    Labels do not have any properties
+
+
+Like any database, storing data in Neo4j can be as simple as adding more records. 
+
+    Similar nodes can have different properties
+    Properties can be strings, numbers, or booleans
+    Neo4j can store billions of nodes
+
+
+The real power of Neo4j is in connected data. To associate any two nodes, add a Relationship which describes how the records are related.
+
+    Relationships always have direction
+    Relationships always have a type
+    Relationships form patterns of data
+
+In a property graph, relationships are data records that can also contain properties. 
+
+
+

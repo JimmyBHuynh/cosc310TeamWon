@@ -1,0 +1,40 @@
+
+
+Neo4j Browser is a command driven client, like a web-based shell environment. It is perfect for running ad-hoc 
+graph queries, with just enough ability to prototype a Neo4j-based application.
+
+    Developer focused, for writing and running graph queries with Cypher
+    Exportable tabular results of any query result
+    Graph visualization of query results containing nodes and relationships
+    Convenient exploration of Neo4j's REST API
+
+
+    Single line editing for brief queries or commands
+    Switch to multi-line editing with <shift-enter>
+    Run a query with <ctrl-enter>
+    History is kept for easily retrieving previous commands
+
+
+
+A result frame is created for each command execution, added to the top of the stream to create a scrollable 
+collection in reverse chronological order.
+
+    Special frames like data visualization
+    Expand a frame to full screen
+    Remove a specific frame from the stream
+    Clear the stream with the:clear command
+
+
+
+The sidebar expands to reveal different functional panels for common queries and information.
+
+    Database metadata and basic information
+    Saved scripts organized into folders
+    Information links for docs and reference
+    Credits and licensing information
+
+Neo4j is like a mashup of a REPL (read-eval-print loop) + lightweight IDE (integrated development environment) 
++ graph visualization. 
+
+
+
