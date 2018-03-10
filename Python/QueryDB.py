@@ -26,16 +26,14 @@ class HelloWorldExample(object):
     @staticmethod
     def _create_and_return_query(tx, query):
         result = tx.run(query)
-        out = result.peek()[0]
         myResults = result.records()
-        #for i in myResults:
-        #  print(myResults[i])
-        #  out +=" " + myResults[i]
+        out = ""
+        for i in myResults:
+          out = out + i[0] + "\n"
         return out
 
 test = HelloWorldExample("bolt://localhost:7687","neo4j","test");
 
-#test.run_Query("CREATE (TheMatrix:Movie {title:'The Matrix', released:1999, tagline:'Welcome to the Real World'}) " );
 test.run_Query("MATCH (n) DETACH DELETE n ");
 
 data = "CREATE(Ma :Person {name : 'Ma Dalton', female : true, size : 1.50}),(Sweetie : Animal {name : 'Sweetie', species : 'cat'}),(Rantanplan : Animal {name : 'Rantanplan', species : 'dog'}),(Joe : Person : Outlaw {name : 'Joe', bounty : 5000, size : 1.40}),(Jack : Person : Outlaw {name : 'Jack', bounty : 4000, size : 1.67}),(William :Person :Outlaw {name : 'William', bounty : 3000, size : 1.93}),(Averell :Person :Outlaw {name : 'Averell', bounty : 2, size : 2.13}),(Ma) -[:LIKES]-> (Sweetie),(Sweetie) -[:DISLIKES {because : 'fight like cat and dog'}]-> (Rantanplan),(Averell) -[:LIKES {because : 'same IQ'}]-> (Rantanplan),(Ma) -[:PARENTS {gift : 'files'}]-> (Joe),(Ma) -[:PARENTS {gift : 'weapons'}]-> (Jack),(Ma) -[:PARENTS {gift : 'books'}]-> (William),(Ma) -[:PARENTS {gift : 'food'}]-> (Averell),(Joe) -[:BROTHER]-> (Jack),(Jack) -[:BROTHER]-> (William),(William) -[:BROTHER]-> (Averell),(Joe) <-[:BROTHER]- (Jack),(Jack) <-[:BROTHER]- (William),(William) <-[:BROTHER]- (Averell)";
