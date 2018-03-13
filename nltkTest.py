@@ -1,5 +1,6 @@
 import nltk
-from nltk.corpus import treebank #Inflect engine faster than lemmatizer for singularizing words
+from nltk.corpus import treebank
+#Inflect engine faster than lemmatizer for singularizing words
 #import inflect
 from nltk.stem import WordNetLemmatizer
 
@@ -26,14 +27,13 @@ print( tag )
 query = ""
 
 count = 0
-#Needto: add a while( next(iterTag)[0] != "get" before here
-
+#Right now, check if first word is our keyword get
 while next( iterTag )[ 0 ] != "get":
 
     count = count + 1
 
 
-#Right now, check if first word is our keyword get
+
 count = count + 1
 nTag = next( iterTag, None )
 
@@ -110,8 +110,41 @@ elif nTag[1] == "NNS" or nTag[1] == "NNPS":
             if len( tag ) == count:
    
                     query = "Match(" + var + " :" + label + ")" + "\n" + "RETURN " + var + "." + prop
-            
-        
+
+
+elif nTag[1] != "NNS" or nTag[1] != "NNPS":
+
+    
+    print( "Word after \'get\': " + str( nTag ) )
+    
+    while next( iterTag )[0] not in keywords:
+
+        count = count +1
+
+    #count = previous word
+    currWord = tag[count + 1]
+    
+    if currWord[1] == "IN":
+
+        var = tag[count][0][0]
+        #PLURALS SOMETIMES DONT WORK --- NOTE WORDS ENDING IN "IES"
+        nTag = next( iterTag, None )
+        count = count + 1
+
+        #If fourth word is noun, then its match property of label
+        if nTag[1] == "NNS" or nTag[1] == "NNPS":
+
+           label = lem.lemmatize( tag[count-1][0] )
+           count = count + 1
+           print( "prop: " + label )
+        count = count + 1
+        prop = lem.lemmatize( tag[count-1][0] )
+        prop = prop[0].upper() + prop[1:]
+        #Nothing else
+        if len( tag ) == count:
+
+                query = "Match(" + var + " :" + prop + ")" + "\n" + "RETURN " + var + "." + label
+    
 print( query )
             
 
