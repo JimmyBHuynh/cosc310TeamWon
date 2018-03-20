@@ -28,6 +28,16 @@ def getInput():
 
     return tag
 
+def singular( word ):
+
+    plural = word
+    toSing = lem.lemmatize( word )
+
+    if toSing[len( toSing ) - 2: len( toSing )] =="ie":
+        return plural
+    else:
+        return toSing
+
 def getFirstKeyword( tag ):
 
     count = 0
@@ -52,7 +62,7 @@ def parse( tag, idxKey ):
     elif tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS":
 
         idxKey = idxKey + 1
-        prop = lem.lemmatize( tag[idxKey][0] )
+        prop = singular( tag[idxKey][0] )
         var = tag[idxKey][0][0]
 
         #Plural noun handling
@@ -74,6 +84,7 @@ def parse( tag, idxKey ):
         idxKey = idxKey + 1
         print( "outter loop. Looking for next keyword: " )
         idxKey = nextKeyword( tag, idxKey )
+        query = handleKeyword( tag, idxKey )
             
     print( query )
         
@@ -103,7 +114,23 @@ def handleKeyword( tag, idxKey ):
         
     elif keyword == "where":
 
-        print()
+        count = 1
+        nextTag = tag[idxKey + count][1]
+        if nextTag == "NNS" or nextTag == "NNPS":
+            
+            prop = singular( tag[idxKey + 1][0] )
+            print( prop )
+
+            count = count + 1
+            
+            if tag[idxKey + count][0] == "is":
+
+                count = count + 1
+                nextWord = tag[idxKey + count]
+
+                if nextWord[1] == "JJ":
+
+                    queryPart = "Match (n {" + prop + " : '" + nextWord[0] + "'})" + "\n" + "RETURN n"  
 
     elif keyword == "and":
 
@@ -114,9 +141,9 @@ def handleKeyword( tag, idxKey ):
         aftTag = tag[idxKey + 1][0]
         
         if befTag == "NNS" or befTag == "NNPS":
-            bef = lem.lemmatize( bef )
+            bef = singular( bef )
         if aftTag == "NNS" or aftTag == "NNPS":
-            aft = lem.lemmatize( aft )
+            aft = singular( aft )
         
         #If plural - singularize
         #Label conjunction if we find 'and'?
@@ -124,7 +151,7 @@ def handleKeyword( tag, idxKey ):
 
     elif keyTag == "NNPS" or keyTag == "NNS":
 
-        queryPart = lem.lemmatize( tag[idxKey][0] )
+        queryPart = singular( tag[idxKey][0] )
         
 
     return queryPart
