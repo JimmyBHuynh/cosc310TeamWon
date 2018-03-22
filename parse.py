@@ -64,7 +64,8 @@ def parse( tag ):
     countExist = 0
     distint = 0
     order = 0
-    
+
+    #check if count exists, then we need to change states
     for i in range( 0, len( tag ) ):
 
         if tag[ i ][0] == "count":
@@ -81,8 +82,9 @@ def parse( tag ):
         print( "determinant: " )
         idxKey = idxKey + 1
 
-    elif tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS":
+    elif tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS" or tag[idxKey + 1] == "NN" or tag[idxKey +1] == "NNP":
 
+        #most likely, we found a noun after get
         idxKey = idxKey + 1
         prop = singular( tag[idxKey][0] )
         var = tag[idxKey][0][0]
@@ -100,11 +102,13 @@ def parse( tag ):
             idxKey = nextKeyword( tag, idxKey )
 
             if tag[idxKey][0] not in keywords:
-                
+
+                #This is how you get names of persons
                 query = "MATCH(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var + "." + prop
                 
             else:
-                
+
+                #other wise
                 query = handleKeyword( tag, idxKey, countExist )
 
     else:
@@ -129,7 +133,7 @@ def handleKeyword( tag, idxKey, countExist ):
         
         prevWd = tag[idxKey - 1]
         nextWd = tag[idxKey + count]
-
+        #if before starting is a noun, keep going
         if prevWd[1] == "NNS" or prevWd[1] == "NNPS":
 
             if nextWd[0] == "with":
