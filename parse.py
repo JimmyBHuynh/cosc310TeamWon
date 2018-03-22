@@ -68,9 +68,17 @@ def parse( tag ):
     #check if count exists, then we need to change states
     for i in range( 0, len( tag ) ):
 
-        if tag[ i ][0] == "count":
+        if tag[i][0] == "count":
 
             countExist = 1
+
+        if tag[i][0] == "distinct":
+
+            distinct = 1
+
+        if tag[i][0] == "order":
+
+            order = 1
         
         
     idxKey = getFirstKeyword( tag )
@@ -79,7 +87,7 @@ def parse( tag ):
     if tag[idxKey + 1][1] == "DT":
 
         #Determinant handling
-        print( "determinant: " )
+        #print( "determinant: " )
         idxKey = idxKey + 1
 
     elif tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS" or tag[idxKey + 1] == "NN" or tag[idxKey +1] == "NNP":
@@ -94,7 +102,26 @@ def parse( tag ):
 
             var = tag[idxKey][0][0]
             query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var  
-            
+
+        elif tag[idxKey + 1][0] == "that":
+            idxKey = idxKey + 1
+            nextWd = tag[idxKey + 1]
+            if nextWd[0] == "are":
+                idxKey = idxKey + 1
+                nextWd = tag[idxKey + 1]
+                if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
+
+                    if order == 1:
+
+                        lastWd = tag[len( tag )-1]
+                        if lastWd[1] == "NN" or lastWd[1] == "NNP":
+
+                            query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
+                        
+                    else:
+                        
+                        query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop
+  
         else:
 
             #Dunno, let's look for next keyword
@@ -115,7 +142,7 @@ def parse( tag ):
                     while tag[idxKey][0] != "that":
                         
                         idxKey = idxKey + 1
-                    print( tag[idxKey][0] )
+                    #print( tag[idxKey][0] )
                 
             else:
 
@@ -125,7 +152,7 @@ def parse( tag ):
     else:
 
         idxKey = idxKey + 1
-        print( "outer loop. Looking for next keyword: " )
+        #print( "outer loop. Looking for next keyword: " )
         idxKey = nextKeyword( tag, idxKey )
         query = handleKeyword( tag, idxKey, countExist )
             
@@ -171,7 +198,7 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if countExist == 1:
                     
-                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + psingular( prevWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( prevWd[0] ) + ")"
+                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( prevWd[0] ) + ")"
 
                 else:
 
@@ -292,6 +319,8 @@ def handleKeyword( tag, idxKey, countExist ):
 
             count = count + 1
             nextWd = tag[idxKey + count]
+
+        
         if isNot == 1:
 
             if countExist == 1:
@@ -332,11 +361,11 @@ def handleKeyword( tag, idxKey, countExist ):
                     
                 if countExist == 1:
                     
-                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " STARTS WITH " + "\"" + tag[idxKey + count][0] + "\"\n" + "RETURN COUNT (n." + singular( prevWd[0] ) + ")"
+                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " STARTS WITH " + "\"" + tag[idxKey + count][0] + "\"\n" + "RETURN COUNT (n." + singular( currWd[0] ) + ")"
 
                 else:
                     
-                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " STARTS WITH " + "\"" + tag[idxKey + count][0] + "\"\n" + "RETURN n." + singular( prevWd[0] )
+                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " STARTS WITH " + "\"" + tag[idxKey + count][0] + "\"\n" + "RETURN n." + singular( currWd[0] )
                     
             elif tag[idxKey + count][0] == "ends":
                 
@@ -349,11 +378,11 @@ def handleKeyword( tag, idxKey, countExist ):
                     
                     if countExist == 1:
                         
-                        queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( prevWd[0] ) + ")"
+                        queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( currWd[0] ) + ")"
 
                     else:
                         
-                        queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN n." + singular( prevWd[0] )                   
+                        queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " ENDS WITH " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN n." + singular( currWd[0] )                   
                 
             elif tag[idxKey + count][0] == "contains":
                 
@@ -361,20 +390,21 @@ def handleKeyword( tag, idxKey, countExist ):
                 
                 if countExist == 1:
                     
-                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " CONTAINS " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( prevWd[0] ) + ")"
+                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " CONTAINS " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN COUNT (n." + singular( currWd[0] ) + ")"
 
                 else:
                     
-                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " CONTAINS " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN n." + singular( prevWd[0] )
+                    queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " CONTAINS " + "\"" + tag[idxKey + count][0] +"\"\n" + "RETURN n." + singular( currWd[0] )
             
             if tag[idxKey + count][0] == "is":
 
                 count = count + 1
+                prop = tag[idxKey + 1]
                 nextWd = tag[idxKey + count]
 
                 if nextWd[1] == "JJ" and ( nextWd[0] != "greater" and nextWd[0] != "less" and nextWd[0] != "equal" and nextWd[0] != "null" ):
 
-                    queryPart = "Match (n {" + prevWd[0] + " : '" + nextWd[0] + "'})" + "\n" + "RETURN n"
+                    queryPart = "Match (n {" + prop[0] + " : '" + nextWd[0] + "'})" + "\n" + "RETURN n"
                     
                 elif nextWd[0] == "greater":
 
@@ -469,11 +499,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                         if countExist == 1:
                             
-                            queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " = " + tag[idxKey + count][0] + "\n" + "RETURN COUNT (n." + singular( currWd[0] ) + ")"                      
+                            queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " = " + tag[idxKey + count][0] + "\n" + "RETURN COUNT (n." + singular( currWd[0] ) + ")"                      
                             
                         else:
                             
-                            queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( prevWd[0] ) + " = " + tag[idxKey + count][0] + "\n" + "RETURN n." + singular( currWd[0] )
+                            queryPart = "MATCH (n)" + "\n" + "WHERE n." + singular( currWd[0] ) + " = " + tag[idxKey + count][0] + "\n" + "RETURN n." + singular( currWd[0] )
                         
                 elif nextWd[0] == "not":
 
