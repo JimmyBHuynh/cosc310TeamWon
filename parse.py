@@ -7,9 +7,8 @@ from nltk.stem import WordNetLemmatizer
 
 #Lemmatizer
 lem = WordNetLemmatizer()
-keywords = "get", "count", "number", "where", "and", "is", "and", "starting", "ending", "containing", "greater", "less", "equal"
+keywords = "get", "number", "where", "and", "is", "and", "starting", "ending", "containing", "greater", "less", "equal"
 query = ""
-global countExist
 
 def getInput():
     
@@ -62,6 +61,17 @@ def nextKeyword( tag, idxKey ):
 
 def parse( tag ):
 
+    countExist = 0
+    distint = 0
+    order = 0
+    
+    for i in range( 0, len( tag ) ):
+
+        if tag[ i ][0] == "count":
+
+            countExist = 1
+        
+        
     idxKey = getFirstKeyword( tag )
     query = ""
 
@@ -81,28 +91,28 @@ def parse( tag ):
         if idxKey + 1 == len( tag ):
 
             var = tag[idxKey][0][0]
-            query = "Match(" + var + " :" + tag[idxKey][0] + ")" + "\n" + "RETURN " + var  
+            query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var  
             
         else:
 
             #Dunno, let's look for next keyword
             print( "looking for next keyword" )
             idxKey = nextKeyword( tag, idxKey )
+
             if tag[idxKey][0] not in keywords:
                 
-                queryPart = handleKeyword( tag, idxKey, 0 )
-                query = "Match(" + var + " :" + queryPart + ")" + "\n" + "RETURN " + var + "." + prop
+                query = "MATCH(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var + "." + prop
                 
             else:
                 
-                query = handleKeyword( tag, idxKey, 0 )
+                query = handleKeyword( tag, idxKey, countExist )
 
     else:
 
         idxKey = idxKey + 1
         print( "outer loop. Looking for next keyword: " )
         idxKey = nextKeyword( tag, idxKey )
-        query = handleKeyword( tag, idxKey, 0 )
+        query = handleKeyword( tag, idxKey, countExist )
             
     print( query )
         
@@ -115,12 +125,7 @@ def handleKeyword( tag, idxKey, countExist ):
     queryPart = ""
     #bunch of ifs yo
     count = 1
-    if keyword == "count":
-
-        exists = 1
-        queryPart = handleKeyword( tag, nextKeyword( tag, idxKey + 1 ), 1 )
-        
-    elif keyword == "starting":
+    if keyword == "starting":
         
         prevWd = tag[idxKey - 1]
         nextWd = tag[idxKey + count]
@@ -498,6 +503,16 @@ def handleKeyword( tag, idxKey, countExist ):
                     
     elif keyword == "and":
 
+        prop = ""
+
+        for i in range( 0, len( tag ) ):
+
+            if tag[i][1] == "NNS" or tag[i][1] == "NNPS":
+
+                prop = singular( tag[i][0] )
+                break
+        var = prop[0]
+
         bef = tag[idxKey - 1][0]
         befTag = tag[idxKey - 1][1]
         aft = tag[idxKey + 1][0]
@@ -514,6 +529,7 @@ def handleKeyword( tag, idxKey, countExist ):
         #If plural - singularize
         #Label conjunction if we find 'and'?
         queryPart = bef + " :" + aft
+        queryPart = "Match(" + var + " :" + queryPart + ")" + "\n" + "RETURN " + var + "." + prop
 
     elif keyTag == "NNPS" or keyTag == "NNS":
 
