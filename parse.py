@@ -198,7 +198,7 @@ def parse( tag ):
 
 
                     #If that is not the end
-                    if idxKey < len( tag ):
+                    if idxKey+1 < len( tag ):
 
                         #If it is that, or who
                         if tag[idxKey + 1][0] == "that" or tag[idxKey + 1][0] == "who":
@@ -227,11 +227,11 @@ def parse( tag ):
                                         
                                         #get names that are parents
                                         query = anyRelQuery( nextWd[0], prop )
-                        else:
+                    else:
                     
-                            if len( tag ) == 4:
+                        if len( tag ) == 4:
                         
-                                query = propOfQuery( prop, singular( tag[idxKey+1][0] ) )
+                            query = propOfQuery( prop, singular( tag[idxKey][0] ) )
 
         else:
 
