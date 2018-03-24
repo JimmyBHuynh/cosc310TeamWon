@@ -21,7 +21,7 @@ def init():
 
 
 	page.title("NLP Input")
-	page.geometry("300x200")
+	page.geometry("400x300")
 
 	app = Frame(page)
 	app.grid()

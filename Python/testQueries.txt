@@ -1,0 +1,2 @@
+get names of persons
+get names of outlaws

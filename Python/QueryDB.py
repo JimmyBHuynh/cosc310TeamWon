@@ -1,5 +1,5 @@
 
-from neo4j.v1 import GraphDatabase; 
+from neo4j.v1 import GraphDatabase 
 
 class connection(object):
 
@@ -30,7 +30,7 @@ class connection(object):
         myResults = result.records()
         out = ""
         for i in myResults:
-          out = out + i[0] + "\n"
+          out = out + i[0] + " "
         return out
 
 #test = connection("bolt://localhost:7687","neo4j","test")
