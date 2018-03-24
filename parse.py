@@ -182,84 +182,56 @@ def parse( tag ):
             idxKey = idxKey + 1
             prop = singular( tag[idxKey][0] )
             var = tag[idxKey][0][0]
-
+            attemptLength = idxKey + 1
             #Plural noun handling
             if idxKey + 1 == len( tag ):
 
                 var = tag[idxKey][0][0]
                 query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var
-
+            
+            elif attemptLength < len( tag ):
             #If we find of, the previous word is a property?   
-            if tag[idxKey+1][0] == "of":
+                if tag[idxKey+1][0] == "of":
 
-                idxKey = idxKey + 2
-                nodeLabel = tag[idxKey][0]
+                    idxKey = idxKey + 2
+                    nodeLabel = tag[idxKey][0]
 
-                attemptLength = idxKey + 1
-                
-                #If that is not the end
-                if attemptLength < len( tag ):
 
-                    #If it is that, or who
-                    if tag[idxKey + 1][0] == "that" or tag[idxKey + 1][0] == "who":
-                        
-                        idxKey = idxKey + 1
-                        nextWd = tag[idxKey + 1]
+                    #If that is not the end
+                    if idxKey < len( tag ):
 
-                        #If have is after that or who, then it is a relation
-                        if nextWd[0] == "have":
-                            
+                        #If it is that, or who
+                        if tag[idxKey + 1][0] == "that" or tag[idxKey + 1][0] == "who":
                             idxKey = idxKey + 1
                             nextWd = tag[idxKey + 1]
 
-                            #If the next word is a plural noun, then we matched a relational query
-                            if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
+                            #If have is after that or who, then it is a relation
+                            if nextWd[0] == "have":
+                                
+                                idxKey = idxKey + 1
+                                nextWd = tag[idxKey + 1]
 
-                                if order == 1:
+                                #If the next word is a plural noun, then we matched a relational query
+                                if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
 
-                                    lastWd = tag[len( tag )-1]
-                                    
-                                    if lastWd[1] == "NN" or lastWd[1] == "NNP":
+                                    if order == 1:
+
+                                        lastWd = tag[len( tag )-1]
                                         
-                                        #get names that are parents order by size
-                                        query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
+                                        if lastWd[1] == "NN" or lastWd[1] == "NNP":
+                                            
+                                            #get names that are parents order by size
+                                            query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
+                                            
+                                    else:
                                         
-                                else:
-                                    
-                                    #get names that are parents
-                                    query = anyRelQuery( nextWd[0], prop )
-                else:
+                                        #get names that are parents
+                                        query = anyRelQuery( nextWd[0], prop )
+                        else:
                     
-                    if len( tag ) == 4:
+                            if len( tag ) == 4:
                         
-                        query = propOfQuery( prop, singular( tag[idxKey][0] ) )
-              
-            else:
-
-                #Dunno, let's look for next keyword
-                #print( "looking for next keyword" )
-                idxKey = nextKeyword( tag, idxKey )
-                if tag[idxKey][0] not in keywords:
-
-                    #This is how you get names of persons
-                    #get species of animals
-                    if len( tag ) == 4:
-                        
-                        query = propOfQuery( prop, singular( tag[idxKey][0] ) )
-                        
-                    else:
-
-                        idxKey = 1
-                        
-                        while tag[idxKey][0] != "that":
-                            
-                            idxKey = idxKey + 1
-                        #print( tag[idxKey][0] )
-                    
-                else:
-
-                    #other wise
-                    query = handleKeyword( tag, idxKey, countExist )
+                                query = propOfQuery( prop, singular( tag[idxKey+1][0] ) )
 
         else:
 
@@ -271,9 +243,10 @@ def parse( tag ):
     else:
 
         query = handleKeyword( tag, idxKey, countExist )
-        print( query )
+        
+    print( query )
             
-        return
+    return
 
 def handleKeyword( tag, idxKey, countExist ):
 
@@ -295,10 +268,14 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if countExist == 1:
 
-                    queryPart = startWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1)
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = startWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1)
                 else:
-
-                    queryPart = startWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
+                    
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = startWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
                     
     elif keyword == "ending":
 
@@ -312,10 +289,14 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if countExist == 1:
                     
-                    queryPart = endWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1 )
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = endWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1 )
                 else:
 
-                    queryPart = endWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = endWithQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
                
     elif keyword == "containing":
 
@@ -324,11 +305,15 @@ def handleKeyword( tag, idxKey, countExist ):
             
             if countExist == 1:
                 
-                queryPart = containQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1 )
+                if tag[idxKey + count][1] != "CD":
+                        
+                    queryPart = containQuery( singular( prevWd[0] ), tag[idxKey + count][0], 1 )
                 
             else:
+
+                if tag[idxKey + count][1] != "CD":
                 
-                queryPart = containQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
+                    queryPart = containQuery( singular( prevWd[0] ), tag[idxKey + count][0], 0 )
                 
     elif keyword == "greater":
 
@@ -466,7 +451,7 @@ def handleKeyword( tag, idxKey, countExist ):
             currWd = nextWd
             count = count + 1
 
-            if tag[idxKey + count][0] == "starts":
+            if tag[idxKey + count][0] == "starts" or tag[idxKey + count][0] == "start":
                 
                 count = count + 1
                 nextWd = tag[idxKey + count]
@@ -476,14 +461,17 @@ def handleKeyword( tag, idxKey, countExist ):
                     count = count + 1
                     
                 if countExist == 1:
-                    
-                    queryPart = startWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
+
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = startWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
                     
                 else:
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = startWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
                     
-                    queryPart = startWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
-                    
-            elif tag[idxKey + count][0] == "ends":
+            elif tag[idxKey + count][0] == "ends" or tag[idxKey + count][0] == "end":
                 
                 count = count + 1
                 nextWd = tag[idxKey + count]
@@ -493,24 +481,30 @@ def handleKeyword( tag, idxKey, countExist ):
                     count = count + 1
                     
                     if countExist == 1:
-                        
-                        queryPart = endWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
+
+                        if tag[idxKey + count][1] != "CD":
+                            
+                            queryPart = endWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
                         
                     else:
-                        
-                        queryPart = endWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
+                        if tag[idxKey + count][1] != "CD":
+                            
+                            queryPart = endWithQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
                     
-            elif tag[idxKey + count][0] == "contains":
+            elif tag[idxKey + count][0] == "contains" or tag[idxKey + count][0] == "contain":
                 
                 count = count + 1
                 
                 if countExist == 1:
                     
-                    queryPart = containQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = containQuery( singular( currWd[0] ), tag[idxKey + count][0], 1 )
                                               
                 else:
-                    
-                    queryPart = containQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
+                    if tag[idxKey + count][1] != "CD":
+                        
+                        queryPart = containQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
                                               
             elif tag[idxKey + count][0] == "is" or tag[idxKey + count][0] == "are":
 
@@ -702,3 +696,4 @@ def handleKeyword( tag, idxKey, countExist ):
 
 tag = getInput()
 parse( tag )
+
