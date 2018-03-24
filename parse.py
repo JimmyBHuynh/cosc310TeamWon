@@ -512,7 +512,7 @@ def handleKeyword( tag, idxKey, countExist ):
                     
                     queryPart = containQuery( singular( currWd[0] ), tag[idxKey + count][0], 0 )
                                               
-            if tag[idxKey + count][0] == "is":
+            elif tag[idxKey + count][0] == "is" or tag[idxKey + count][0] == "are":
 
                 count = count + 1
                 prop = tag[idxKey + 1]
