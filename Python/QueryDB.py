@@ -1,7 +1,7 @@
 
-from neo4j.v1 import GraphDatabase;
+from neo4j.v1 import GraphDatabase 
 
-class HelloWorldExample(object):
+class connection(object):
 
     def __init__(self, uri, user, password):
         self._driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -11,13 +11,14 @@ class HelloWorldExample(object):
 
     def run_Query(self, query):
         with self._driver.session() as session:
-            session.write_transaction(self._create_query, query)
+            session.write_transaction(self._create_query, query)       
 
 
     def run_Return_Query(self, query):
         with self._driver.session() as session:
             result = session.write_transaction(self._create_and_return_query, query)
-            print(result)  
+            return (result)
+              
 
     @staticmethod
     def _create_query(tx, query):
@@ -29,16 +30,15 @@ class HelloWorldExample(object):
         myResults = result.records()
         out = ""
         for i in myResults:
-          out = out + i[0] + "\n"
+          out = out + i[0] + " "
         return out
 
-test = HelloWorldExample("bolt://localhost:7687","neo4j","test");
+#test = connection("bolt://localhost:7687","neo4j","test")
+#test.run_Query("MATCH (n) DETACH DELETE n ")
 
-test.run_Query("MATCH (n) DETACH DELETE n ");
-
-data = "CREATE(Ma :Person {name : 'Ma Dalton', female : true, size : 1.50}),(Sweetie : Animal {name : 'Sweetie', species : 'cat'}),(Rantanplan : Animal {name : 'Rantanplan', species : 'dog'}),(Joe : Person : Outlaw {name : 'Joe', bounty : 5000, size : 1.40}),(Jack : Person : Outlaw {name : 'Jack', bounty : 4000, size : 1.67}),(William :Person :Outlaw {name : 'William', bounty : 3000, size : 1.93}),(Averell :Person :Outlaw {name : 'Averell', bounty : 2, size : 2.13}),(Ma) -[:LIKES]-> (Sweetie),(Sweetie) -[:DISLIKES {because : 'fight like cat and dog'}]-> (Rantanplan),(Averell) -[:LIKES {because : 'same IQ'}]-> (Rantanplan),(Ma) -[:PARENTS {gift : 'files'}]-> (Joe),(Ma) -[:PARENTS {gift : 'weapons'}]-> (Jack),(Ma) -[:PARENTS {gift : 'books'}]-> (William),(Ma) -[:PARENTS {gift : 'food'}]-> (Averell),(Joe) -[:BROTHER]-> (Jack),(Jack) -[:BROTHER]-> (William),(William) -[:BROTHER]-> (Averell),(Joe) <-[:BROTHER]- (Jack),(Jack) <-[:BROTHER]- (William),(William) <-[:BROTHER]- (Averell)";
-test.run_Query(data);
-test.run_Return_Query("MATCH ( n : Person : Outlaw ) RETURN n.name")
+#data = "CREATE(Ma :person {name : 'Ma Dalton', female : true, size : 1.50}),(Sweetie : animal {name : 'Sweetie', species : 'cat'}),(Rantanplan : animal {name : 'Rantanplan', species : 'dog'}),(Joe : person : outlaw {name : 'Joe', bounty : 5000, size : 1.40}),(Jack : person : outlaw {name : 'Jack', bounty : 4000, size : 1.67}),(William :person :outlaw {name : 'William', bounty : 3000, size : 1.93}),(Averell :person :outlaw {name : 'Averell', bounty : 2, size : 2.13}),(Ma) -[:LIKES]-> (Sweetie),(Sweetie) -[:DISLIKES {because : 'fight like cat and dog'}]-> (Rantanplan),(Averell) -[:LIKES {because : 'same IQ'}]-> (Rantanplan),(Ma) -[:PARENTS {gift : 'files'}]-> (Joe),(Ma) -[:PARENTS {gift : 'weapons'}]-> (Jack),(Ma) -[:PARENTS {gift : 'books'}]-> (William),(Ma) -[:PARENTS {gift : 'food'}]-> (Averell),(Joe) -[:BROTHER]-> (Jack),(Jack) -[:BROTHER]-> (William),(William) -[:BROTHER]-> (Averell),(Joe) <-[:BROTHER]- (Jack),(Jack) <-[:BROTHER]- (William),(William) <-[:BROTHER]- (Averell)"
+#test.run_Query(data)
+#test.run_Return_Query("MATCH ( n : person : outlaw ) RETURN n.name")
 
 #CREATE (Canucks:Team {Name:'Canucks', Season:'2017/2018', gamesPlayed:65, wins:24, losses:32 , ties:0}) 
 #CREATE (Flames:Team {Name: 'Flames',Season:'2017/2018', gamesPlayed:66, wins:32, losses:25 , ties:0})
