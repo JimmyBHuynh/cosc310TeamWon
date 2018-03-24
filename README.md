@@ -1,8 +1,7 @@
-# cosc310TeamWon
+
 
 runs in command line: python parse.py
 
-Get is king.
 
 Some examples:
 
