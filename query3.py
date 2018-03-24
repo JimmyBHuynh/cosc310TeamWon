@@ -5,13 +5,18 @@ from nltk.stem import WordNetLemmatizer
 	
 lem = WordNetLemmatizer()
 
+def query3Translate(prop, val):
+    cypher = "MATCH (n) WHERE n." + prop + " = ‘" + val + "’ RETURN n"
+    return cypher;
+
+
 def query3(phrase):
 	
 	results = ""
 
 	#Use nltk to get word type
 	tokens = nltk.word_tokenize( phrase.lower() )
-
+	
 	#List of valid non-verb starting words for this query
 	startingWord = 'what', 'find', 'get', 'return', 'which', 'match'
 	
@@ -19,12 +24,12 @@ def query3(phrase):
 	haveSyn = 'have', 'has', 'possess', 'possesses', 'are' 
 
 	tag = nltk.pos_tag( tokens )
-
+	
 	pointer = 0
 	length = len(tag)
 	
 	if pointer == length:
-		results = 'No Match'
+		results = 'No match'
 		return results;
 
 	#currentTag points to a word and token in user query, which are both stored in their sepearte variables
@@ -44,7 +49,7 @@ def query3(phrase):
 		pointer += 1
 		
 		if pointer == length:
-			results = 'No Match B'
+			results = 'No match'
 			return results;
 			
 		currentTag = tag[pointer]
@@ -56,13 +61,13 @@ def query3(phrase):
 		#the program skips to the next word
 		if currentWord == 'all':
 			if startingToken == 'WP':
-				results = 'No match C'
+				results = 'No match'
 				return results;
 			else:
 				pointer += 1
 				
 				if pointer == length:
-					results = 'No Match D'
+					results = 'No match'
 					return results;
 					
 				currentTag = tag[pointer]
@@ -71,13 +76,13 @@ def query3(phrase):
 		
 		#Current word should be a plural noun if using this query type, refering to the nodes (ex: nodes, entries, ect.)
 		if currentToken != 'NNS' and currentToken != 'VBZ':
-			results = 'No match E' + currentToken + currentWord
+			results = 'No match'
 			return results;
 		
 		pointer += 1
 		
 		if pointer == length:
-			results = 'No Match F'
+			results = 'No match'
 			return results;
 			
 		currentTag = tag[pointer]
@@ -92,7 +97,7 @@ def query3(phrase):
 				pointer += 1
 		
 				if pointer == length:
-					results = 'No Match G'
+					results = 'No match'
 					return results;
 				
 				prev = True
@@ -105,14 +110,14 @@ def query3(phrase):
 			pointer += 1
 		
 			if pointer == length:
-				results = 'No Match H'
+				results = 'No match'
 				return results;
 				
 			currentTag = tag[pointer]
 			currentWord = currentTag[0]
 			currentToken = currentTag[1]
 		else:
-			results = 'No match I' + currentToken
+			results = 'No match'
 			return results;
 		
 		#User will often put an 'a' for this word. Syntax is valid either way, so it can just be iterated over if it is an 'a'
@@ -120,7 +125,7 @@ def query3(phrase):
 			pointer += 1
 		
 			if pointer == length:
-				results = 'No Match J'
+				results = 'No match'
 				return results;
 				
 			currentTag = tag[pointer]
@@ -138,7 +143,7 @@ def query3(phrase):
 			currentTag = tag[pointer]
 			value = currentTag[0]
 			
-			results = attribute, value
+			results = query3Translate(attribute, value)
 			return results;
 		
 		elif remainingWords == 3:
@@ -148,21 +153,19 @@ def query3(phrase):
 			currentWord = currentTag[0]
 			
 			if(currentWord != 'of'):
-				results = 'No match K'
+				results = 'No match'
 				return results;
 				
 			pointer += 1
 			currentTag = tag[pointer]
 			value = currentTag[0]
 			
-			results = attribute, value
+			results = query3Translate(attribute, value)
 			return results;
 
-		results = 'No match L'
+		results = 'No match'
 		return results;
 		
 	else:
-		results = 'No match A'
+		results = 'No match'
 		return results;
-
-	print( tag )
