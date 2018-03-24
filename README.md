@@ -2,7 +2,7 @@
 
 runs in command line: python parse.py
 
-Read testParse.py for all 38 templates currently supported.
+Read parseTest.py for all 38 templates currently supported.
 
 
 Some examples:
