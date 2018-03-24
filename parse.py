@@ -5,21 +5,15 @@ from nltk.corpus import treebank
 #import inflect
 from nltk.stem import WordNetLemmatizer
 
-#Lemmatizer
-lem = WordNetLemmatizer()
 keywords = "get", "number", "where", "and", "is", "and", "starting", "ending", "containing", "greater", "less", "equal"
 query = ""
 
 def getInput():
-    
-    #Get input --> Going to be function in itself later
         
     phrase = input( "Query: " )
     tokens = nltk.word_tokenize( phrase.lower() )
     
     tag = nltk.pos_tag( tokens )
-
-    iterTag = iter( tag )
 
     print( tag )
 
@@ -29,19 +23,24 @@ def getInput():
     return tag
 
 def anyRelQuery( rel, prop ):
-        
+
+    #Triggered by phrases like: get names that are parents
     query = "MATCH () -[:" + rel + "] -> (n)" + "\n" + "RETURN n." + prop
         
     return query
 
 def propOfQuery( prop, label ):
 
+    #Triggered by phrases like: get names of animals
     query = "MATCH (" + prop[0] + " :" + label + ")" + "\n" + "RETURN " + prop[0] + "." + prop
 
     return query
 
 def startWithQuery( prop, string, count ):
 
+    #Triggered by phrases like: get nodes where names starts with J
+    #Triggered by phrases like: get names starting with J
+    
     if count == 1:
         
         query = "MATCH (n)" + "\n" + "WHERE n." + prop + " STARTS WITH " + "\"" + string + "\"\n" + "RETURN COUNT (n." + prop + ")"
@@ -53,7 +52,10 @@ def startWithQuery( prop, string, count ):
     return query
         
 def endWithQuery( prop, string, count ):
-
+    
+    #Triggered by phrases like: get nodes where names ends with J
+    #Triggered by phrases like: get names ending with J
+    
     if count == 1:
 
         query = "MATCH (n)" + "\n" + "WHERE n." + prop + " ENDS WITH " + "\"" + string + "\"\n" + "RETURN COUNT (n." + prop + ")"
@@ -65,7 +67,10 @@ def endWithQuery( prop, string, count ):
     return query
 
 def containQuery( prop, string, count ):
-
+    
+    #Triggered by phrases like: get nodes where names contains J
+    #Triggered by phrases like: get names containing J
+    
     if count == 1:
 
         query = "MATCH (n)" + "\n" + "WHERE n." + prop + " CONTAINS " + "\"" + string + "\"\n" + "RETURN COUNT (n." + prop + ")"
@@ -77,6 +82,11 @@ def containQuery( prop, string, count ):
     return query
 
 def equalityQuery( prop, amount, sign, count ):
+
+    #Triggered by phrases like: get nodes where bounties is greater than or equal to 5000
+    #Triggered by phrases like: get prices equal to 5000
+    #Triggered by phrases like: get nodes where salary is not equal to 50000
+    #Triggered by phrases like: get salaries equal to 100000
 
     if count == 1:
         
@@ -114,6 +124,9 @@ def nullPropQuery( prop, null, count ):
         
 def singular( word ):
 
+    #Turns plural nouns into their singular form.
+    #Assumes databases properties are in their singular form.
+    lem = WordNetLemmatizer()
     plural = word
     toSing = lem.lemmatize( word )
 
@@ -122,19 +135,9 @@ def singular( word ):
     else:
         return toSing
 
-def getFirstKeyword( tag ):
-
-    count = 0
-    while tag[count][0] not in keywords:
-
-        count = count + 1
-
-    #print( "First keyword: " + str( tag[count][0] ) )
-           
-    return count
-
 def nextKeyword( tag, idxKey ):
 
+    #Look for keywords in our list
     while tag[idxKey][0] not in keywords and idxKey < len( tag )-1:
 
         idxKey = idxKey + 1
@@ -145,11 +148,12 @@ def nextKeyword( tag, idxKey ):
 
 def parse( tag ):
 
+    #initialize modifiers
     countExist = 0
     distint = 0
     order = 0
 
-    #check if count exists, then we need to change states
+    #check if any modifiers exists, then we need to change states
     for i in range( 0, len( tag ) ):
 
         if tag[i][0] == "count":
@@ -163,11 +167,14 @@ def parse( tag ):
         if tag[i][0] == "order":
 
             order = 1
-        
-        
-    idxKey = getFirstKeyword( tag )
+
+    #initialize search, currently relies on get being first keyword hit
+    idxKey = 0
+    idxKey = nextKeyword( tag, idxKey )
     query = ""
 
+
+    #check if the next word is a noun
     if tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS" or tag[idxKey + 1] == "NN" or tag[idxKey +1] == "NNP":
 
         #most likely, we found a noun after get
@@ -179,32 +186,58 @@ def parse( tag ):
         if idxKey + 1 == len( tag ):
 
             var = tag[idxKey][0][0]
-            query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var  
+            query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var
 
-        elif tag[idxKey + 1][0] == "that":
-            idxKey = idxKey + 1
-            nextWd = tag[idxKey + 1]
-            if nextWd[0] == "are":
-                idxKey = idxKey + 1
-                nextWd = tag[idxKey + 1]
-                if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
+        #If we find of, the previous word is a property?   
+        if tag[idxKey+1][0] == "of":
 
-                    if order == 1:
+            idxKey = idxKey + 2
+            nodeLabel = tag[idxKey][0]
 
-                        lastWd = tag[len( tag )-1]
-                        if lastWd[1] == "NN" or lastWd[1] == "NNP":
-                            #get names that are parents order by size
-                            query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
-                    else:
-                        #get names that are parents
-                        query = anyRelQuery( nextWd[0], prop )
-  
+            attemptLength = idxKey + 1
+            
+            #If that is not the end
+            if attemptLength < len( tag ):
+
+                #If it is that, or who
+                if tag[idxKey + 1][0] == "that" or tag[idxKey + 1][0] == "who":
+                    
+                    idxKey = idxKey + 1
+                    nextWd = tag[idxKey + 1]
+
+                    #If have is after that or who, then it is a relation
+                    if nextWd[0] == "have":
+                        
+                        idxKey = idxKey + 1
+                        nextWd = tag[idxKey + 1]
+
+                        #If the next word is a plural noun, then we matched a relational query
+                        if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
+
+                            if order == 1:
+
+                                lastWd = tag[len( tag )-1]
+                                
+                                if lastWd[1] == "NN" or lastWd[1] == "NNP":
+                                    
+                                    #get names that are parents order by size
+                                    query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
+                                    
+                            else:
+                                
+                                #get names that are parents
+                                query = anyRelQuery( nextWd[0], prop )
+            else:
+                
+                if len( tag ) == 4:
+                    
+                    query = propOfQuery( prop, singular( tag[idxKey][0] ) )
+          
         else:
 
             #Dunno, let's look for next keyword
-            print( "looking for next keyword" )
+            #print( "looking for next keyword" )
             idxKey = nextKeyword( tag, idxKey )
-
             if tag[idxKey][0] not in keywords:
 
                 #This is how you get names of persons
@@ -212,6 +245,7 @@ def parse( tag ):
                 if len( tag ) == 4:
                     
                     query = propOfQuery( prop, singular( tag[idxKey][0] ) )
+                    
                 else:
 
                     idxKey = 1
@@ -296,12 +330,14 @@ def handleKeyword( tag, idxKey, countExist ):
 
         prevWd = tag[idxKey - 1]
         nextWd = tag[idxKey + count]
-        
+
+        #check if than is next
         if nextWd[0] == "than":
             
             count = count + 1
             nextWd = tag[idxKey + count]
-            
+
+            #if next tag after than is a quantity then we matched a relation
             if nextWd[1] == "CD":
 
                 if countExist == 1:
@@ -311,7 +347,7 @@ def handleKeyword( tag, idxKey, countExist ):
                 else:
                     
                     queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], ">", 0 )
-                
+            #if its or instead, then it could be "or equal to"    
             elif nextWd[0] == "or":
                 
                 count = count + 1
@@ -419,6 +455,7 @@ def handleKeyword( tag, idxKey, countExist ):
     elif keyword == "where":
 
         nextWd = tag[idxKey + count]
+        #Added to detect templates with where
         if nextWd[1] == "NN" or nextWd[1] == "NNP" or nextWd[1] == "NNS" or nextWd[1] == "NNPS":
             
             prevWd = tag[idxKey - 1]
@@ -598,7 +635,7 @@ def handleKeyword( tag, idxKey, countExist ):
                         else:
                             
                             queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<>", 0 )
-
+                    
                     elif nextWd[0] == "null":
 
                         if countExist == 1:
@@ -618,21 +655,22 @@ def handleKeyword( tag, idxKey, countExist ):
                         else:
                             
                             queryPart = nullPropQuery( singular( currWd[0] ), 1, 0 )
-                    
-                        
-                    
+                                        
     elif keyword == "and":
 
         prop = ""
 
+        #Search for first noun
         for i in range( 0, len( tag ) ):
 
             if tag[i][1] == "NNS" or tag[i][1] == "NNPS":
 
                 prop = singular( tag[i][0] )
                 break
+            
         var = prop[0]
 
+        #Nouns before and after "and"
         bef = tag[idxKey - 1][0]
         befTag = tag[idxKey - 1][1]
         aft = tag[idxKey + 1][0]
