@@ -1,5 +1,4 @@
 import nltk
-from nltk.corpus import treebank
 #Inflect engine faster than lemmatizer for singularizing words
 #Depluralizing has issues with words ending in 'ies' - eg. species/specie
 #import inflect
@@ -81,7 +80,7 @@ def containQuery( prop, string, count ):
 
     return query
 
-def equalityQuery( prop, amount, sign, count ):
+def equalityQuery( prop, prop2, amount, sign, count ):
 
     #Triggered by phrases like: get nodes where bounties is greater than or equal to 5000
     #Triggered by phrases like: get prices equal to 5000
@@ -90,11 +89,11 @@ def equalityQuery( prop, amount, sign, count ):
 
     if count == 1:
         
-        query = "MATCH (n)" + "\n" + "WHERE n." + prop + " " + sign + " " + amount + "\n" + "RETURN COUNT (n." + prop + ")"
+        query = "MATCH (n)" + "\n" + "WHERE n." + prop + " " + sign + " " + amount + "\n" + "RETURN COUNT (n." + prop2 + ")"
 
     else:
 
-        query = "MATCH (n)" + "\n" + "WHERE n." + prop + " " + sign + " " + amount + "\n" + "RETURN n." + prop
+        query = "MATCH (n)" + "\n" + "WHERE n." + prop + " " + sign + " " + amount + "\n" + "RETURN n." + prop2
 
     return query
 
@@ -187,7 +186,7 @@ def parse( tag ):
             if idxKey + 1 == len( tag ):
 
                 var = tag[idxKey][0][0]
-                query = "Match(" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var
+                query = "MATCH (" + var + " :" + singular( tag[idxKey][0] ) + ")" + "\n" + "RETURN " + var
             
             elif attemptLength < len( tag ):
             #If we find of, the previous word is a property?   
@@ -195,8 +194,7 @@ def parse( tag ):
 
                     idxKey = idxKey + 2
                     nodeLabel = tag[idxKey][0]
-
-
+                    
                     #If that is not the end
                     if idxKey+1 < len( tag ):
 
@@ -244,9 +242,9 @@ def parse( tag ):
 
         query = handleKeyword( tag, idxKey, countExist )
         
-    print( query )
+    #print( query )
             
-    return
+    return query
 
 def handleKeyword( tag, idxKey, countExist ):
 
@@ -331,11 +329,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if countExist == 1:
 
-                    queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], ">", 1 )
+                    queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], ">", 1 )
                     
                 else:
                     
-                    queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], ">", 0 )
+                    queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], ">", 0 )
             #if its or instead, then it could be "or equal to"    
             elif nextWd[0] == "or":
                 
@@ -351,11 +349,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                     if countExist == 1:
 
-                        queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], ">=", 1 )
+                        queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], ">=", 1 )
                         
                     else:
                         
-                        queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], ">=", 0 )
+                        queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], ">=", 0 )
 
 
     elif keyword == "less":
@@ -372,11 +370,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if countExist == 1:
 
-                    queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<", 1 )
+                    queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<", 1 )
 
                 else:
                 
-                    queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<", 0 )
+                    queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<", 0 )
                 
             elif nextWd[0] == "or":
                 
@@ -392,11 +390,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                     if countExist == 1:
 
-                        queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<=", 1 )
+                        queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<=", 1 )
                         
                     else:
                         
-                        queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<=", 0 )
+                        queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<=", 0 )
 
 
     elif keyword == "equal":
@@ -425,25 +423,26 @@ def handleKeyword( tag, idxKey, countExist ):
 
             if countExist == 1:
 
-                queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<>", 1 )
+                queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<>", 1 )
                 
             else:
                 
-                queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "<>", 0 )
+                queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "<>", 0 )
             
         else:
 
             if countExist == 1:
 
-                 queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "=", 1 )
+                 queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "=", 1 )
                 
             else:
                 
-                 queryPart = equalityQuery( singular( prevWd[0] ), tag[idxKey + count][0], "=", 0 )
+                 queryPart = equalityQuery( singular( prevWd[0] ), singular( prevWd[0] ), tag[idxKey + count][0], "=", 0 )
         
     elif keyword == "where":
 
         nextWd = tag[idxKey + count]
+        prop2 = singular( tag[idxKey - 1][0] )
         #Added to detect templates with where
         if nextWd[1] == "NN" or nextWd[1] == "NNP" or nextWd[1] == "NNS" or nextWd[1] == "NNPS":
             
@@ -514,7 +513,7 @@ def handleKeyword( tag, idxKey, countExist ):
 
                 if nextWd[1] == "JJ" and ( nextWd[0] != "greater" and nextWd[0] != "less" and nextWd[0] != "equal" and nextWd[0] != "null" ):
 
-                    queryPart = "Match (n {" + prop[0] + " : '" + nextWd[0] + "'})" + "\n" + "RETURN n"
+                    queryPart = "MATCH (n {" + prop[0] + " : '" + nextWd[0] + "'})" + "\n" + "RETURN n"
                     
                 elif nextWd[0] == "greater":
 
@@ -531,11 +530,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                             if countExist == 1:
 
-                                queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], ">", 1 )
+                                queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], ">", 1 )
                                 
                             else:
                             
-                                queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], ">", 0 )
+                                queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], ">", 0 )
                             
                         elif nextWd[0] == "or":
                             
@@ -551,11 +550,11 @@ def handleKeyword( tag, idxKey, countExist ):
                                     
                                 if countExist == 1:
 
-                                     queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], ">=", 1 )
+                                     queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], ">=", 1 )
 
                                 else:
                                 
-                                     queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], ">=", 0 )
+                                     queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], ">=", 0 )
 
                 elif nextWd[0] == "less":
 
@@ -572,11 +571,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                             if countExist == 1:
 
-                                queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<", 1 )
+                                queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<", 1 )
 
                             else:
                             
-                                queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<", 0 )
+                                queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<", 0 )
                             
                         elif nextWd[0] == "or":
                             
@@ -592,11 +591,11 @@ def handleKeyword( tag, idxKey, countExist ):
                                     
                                 if countExist == 1:
 
-                                    queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<=", 1 )
+                                    queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<=", 1 )
                                     
                                 else:
                                 
-                                    queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<=", 0 )
+                                    queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<=", 0 )
 
 
                 elif nextWd[0] == "equal":
@@ -608,11 +607,11 @@ def handleKeyword( tag, idxKey, countExist ):
 
                     if countExist == 1:
                             
-                        queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "=", 1 )
+                        queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "=", 1 )
                             
                     else:
                             
-                        queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "=", 0 )
+                        queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "=", 0 )
                         
                 elif nextWd[0] == "not":
 
@@ -628,11 +627,11 @@ def handleKeyword( tag, idxKey, countExist ):
                                         
                         if countExist == 1:
                             
-                            queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<>", 1 )
+                            queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<>", 1 )
                             
                         else:
                             
-                            queryPart = equalityQuery( singular( currWd[0] ), tag[idxKey + count][0], "<>", 0 )
+                            queryPart = equalityQuery( singular( currWd[0] ), prop2, tag[idxKey + count][0], "<>", 0 )
                     
                     elif nextWd[0] == "null":
 
@@ -685,7 +684,7 @@ def handleKeyword( tag, idxKey, countExist ):
         #If plural - singularize
         #Label conjunction if we find 'and'?
         queryPart = bef + " :" + aft
-        queryPart = "Match(" + var + " :" + queryPart + ")" + "\n" + "RETURN " + var + "." + prop
+        queryPart = "MATCH (" + var + " :" + queryPart + ")" + "\n" + "RETURN " + var + "." + prop
 
     elif keyTag == "NNPS" or keyTag == "NNS":
 
@@ -694,6 +693,6 @@ def handleKeyword( tag, idxKey, countExist ):
         
     return queryPart
 
-tag = getInput()
-parse( tag )
+#tag = getInput()
+#parse( tag )
 
