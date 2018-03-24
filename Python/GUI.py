@@ -7,7 +7,6 @@ def setOutput(input, cypher, output, myConnection):
 
 	#wordList = input.split()
 	cypherTranslation = parse.init(input)
-	print("test" ,cypherTranslation)
 	#cypherTranslation = query3.query3(input)
 	cypher.set(cypherTranslation)
 	output.set(myConnection.run_Return_Query(cypherTranslation))
