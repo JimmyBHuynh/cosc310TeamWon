@@ -3,10 +3,9 @@ import nltk
 from nltk.corpus import treebank
 from nltk.stem import WordNetLemmatizer
 	
+lem = WordNetLemmatizer()
 
 def query3(phrase):
-	#Lemmatizer
-	lem = WordNetLemmatizer()
 	
 	results = ""
 
@@ -35,7 +34,7 @@ def query3(phrase):
 	currentToken = currentTag[1]
 
 	#Method immidiately stops if the starting word isn't in the startingWord list
-	if currentTag in startingWord:
+	if currentWord in startingWord:
 		
 		
 		startingToken = currentToken
@@ -45,7 +44,7 @@ def query3(phrase):
 		pointer += 1
 		
 		if pointer == length:
-			results = 'No Match'
+			results = 'No Match B'
 			return results;
 			
 		currentTag = tag[pointer]
@@ -57,13 +56,13 @@ def query3(phrase):
 		#the program skips to the next word
 		if currentWord == 'all':
 			if startingToken == 'WP':
-				results = 'No match'
+				results = 'No match C'
 				return results;
 			else:
 				pointer += 1
 				
 				if pointer == length:
-					results = 'No Match'
+					results = 'No Match D'
 					return results;
 					
 				currentTag = tag[pointer]
@@ -71,14 +70,14 @@ def query3(phrase):
 				currentToken = currentTag[1]
 		
 		#Current word should be a plural noun if using this query type, refering to the nodes (ex: nodes, entries, ect.)
-		if currentToken != 'NNS':
-			results = 'No match'
+		if currentToken != 'NNS' and currentToken != 'VBZ':
+			results = 'No match E' + currentToken + currentWord
 			return results;
 		
 		pointer += 1
 		
 		if pointer == length:
-			results = 'No Match'
+			results = 'No Match F'
 			return results;
 			
 		currentTag = tag[pointer]
@@ -88,12 +87,12 @@ def query3(phrase):
 		#If starting word was not a wh pronoun, current word could be a wh pronoun or 'that'. If it is, it is 'prev' is set to true, then the word is iterated over.
 		prev = False
 		if startingToken != 'WP':
-			if currentWord == 'that' or currentWord == 'who' or currentWord = 'which':
+			if currentWord == 'that' or currentWord == 'who' or currentWord == 'which':
 			
 				pointer += 1
 		
 				if pointer == length:
-					results = 'No Match'
+					results = 'No Match G'
 					return results;
 				
 				prev = True
@@ -102,26 +101,26 @@ def query3(phrase):
 				currentToken = currentTag[1]
 		
 		#Next word can be 'with' if it comes directly after the noun, or part of the haveSyn list if either the starting token was a wh pronoun or the previous token was a wh pronoun or that
-		if prev == False and currentWord == 'with' or prev == True and currentToken in haveSyn or startingToken == 'WP' and currentToken in haveSyn:
+		if prev == False and currentToken == 'IN' or prev == True and currentWord in haveSyn or startingToken == 'WP' and currentWord in haveSyn:
 			pointer += 1
 		
 			if pointer == length:
-				results = 'No Match'
+				results = 'No Match H'
 				return results;
 				
 			currentTag = tag[pointer]
 			currentWord = currentTag[0]
 			currentToken = currentTag[1]
 		else:
-			results = 'No match'
+			results = 'No match I' + currentToken
 			return results;
 		
 		#User will often put an 'a' for this word. Syntax is valid either way, so it can just be iterated over if it is an 'a'
-		if currentWord = 'a':
+		if currentWord == 'a' or currentWord == 'an':
 			pointer += 1
 		
 			if pointer == length:
-				results = 'No Match'
+				results = 'No Match J'
 				return results;
 				
 			currentTag = tag[pointer]
@@ -148,8 +147,8 @@ def query3(phrase):
 			currentTag = tag[pointer]
 			currentWord = currentTag[0]
 			
-			if(currentWord != 'if'):
-				results = 'No match'
+			if(currentWord != 'of'):
+				results = 'No match K'
 				return results;
 				
 			pointer += 1
@@ -159,11 +158,11 @@ def query3(phrase):
 			results = attribute, value
 			return results;
 
-		results = 'No match'
+		results = 'No match L'
 		return results;
 		
 	else:
-		results = 'No match'
+		results = 'No match A'
 		return results;
 
 	print( tag )
