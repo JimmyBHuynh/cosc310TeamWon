@@ -2,6 +2,7 @@ from tkinter import *
 import parse
 import query3
 import QueryDB
+import sys
 
 def setOutput(input, cypher, output, myConnection):
 
@@ -11,12 +12,16 @@ def setOutput(input, cypher, output, myConnection):
 	except:
 		cypherTranslation = "Error in translating step"
 	#cypherTranslation = query3.query3(input)
-	cypher.set(cypherTranslation)
-	outputValue = myConnection.run_Return_Query(cypherTranslation)
-	if (not outputValue):
-		output.set("The query did not return a result, is this data in the database?")
-	else:	
-		output.set(outputValue)
+	if(not cypherTranslation):
+		cypherTranslation = "Error in translating step"
+		cypher.set(cypherTranslation)
+	else:
+		cypher.set(cypherTranslation)
+		outputValue = myConnection.run_Return_Query(cypherTranslation)
+		if (not outputValue):
+			output.set("The query did not return a result, is this data in the database?")
+		else:	
+			output.set(outputValue)
 
 
 
@@ -25,6 +30,8 @@ def init():
 		test = QueryDB.connection("bolt://localhost:7687","neo4j","test")
 	except:
 		print("Cannot connect to server")
+		sys.exit()
+
 
 	page = Tk()
 
@@ -33,7 +40,7 @@ def init():
 
 
 	page.title("NLP Input")
-	page.geometry("450x350")
+	page.geometry("700x350")
 
 	app = Frame(page)
 	app.grid()
