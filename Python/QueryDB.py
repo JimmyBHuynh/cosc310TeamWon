@@ -30,7 +30,7 @@ class connection(object):
         myResults = result.records()
         out = ""
         for i in myResults:
-          out = out + i[0] + " "
+          out = out + str(i[0]) + " "
         return out
 
 #test = connection("bolt://localhost:7687","neo4j","test")

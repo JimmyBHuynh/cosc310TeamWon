@@ -17,7 +17,7 @@ def setOutput(input, cypher, output, myConnection):
 		cypher.set(cypherTranslation)
 	else:
 		cypher.set(cypherTranslation)
-		outputValue = myConnection.run_Return_Query(cypherTranslation)
+		outputValue = str(myConnection.run_Return_Query(cypherTranslation))
 		if (not outputValue):
 			output.set("The query did not return a result, is this data in the database?")
 		else:	
