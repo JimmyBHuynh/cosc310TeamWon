@@ -257,7 +257,6 @@ def parse( tag ):
 
         query = handleKeyword( tag, idxKey, countExist )
         
-    print("Test1" , query )          
     return query
 
 def handleKeyword( tag, idxKey, countExist ):
