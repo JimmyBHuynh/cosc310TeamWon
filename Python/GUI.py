@@ -6,15 +6,25 @@ import QueryDB
 def setOutput(input, cypher, output, myConnection):
 
 	#wordList = input.split()
-	cypherTranslation = parse.init(input)
+	try:
+		cypherTranslation = parse.init(input)
+	except:
+		cypherTranslation = "Error in translating step"
 	#cypherTranslation = query3.query3(input)
 	cypher.set(cypherTranslation)
-	output.set(myConnection.run_Return_Query(cypherTranslation))
+	outputValue = myConnection.run_Return_Query(cypherTranslation)
+	if (not outputValue):
+		output.set("The query did not return a result, is this data in the database?")
+	else:	
+		output.set(outputValue)
 
 
 
 def init():
-	test = QueryDB.connection("bolt://localhost:7687","neo4j","test")
+	try:
+		test = QueryDB.connection("bolt://localhost:7687","neo4j","test")
+	except:
+		print("Cannot connect to server")
 
 	page = Tk()
 
@@ -23,7 +33,7 @@ def init():
 
 
 	page.title("NLP Input")
-	page.geometry("400x300")
+	page.geometry("450x350")
 
 	app = Frame(page)
 	app.grid()
