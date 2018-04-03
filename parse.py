@@ -23,9 +23,22 @@ def getInput():
 
 def anyRelQuery( rel, prop ):
 
-    #Triggered by phrases like: get names that are parents
+    #Triggered by phrases like: get names that have parents
     query = "MATCH () -[:" + rel + "] -> (n)" + "\n" + "RETURN n." + prop
         
+    return query
+
+def propRelQuery( reqProp, reqPropVal, rel, queryHops, prop, distinct ):
+
+    #Triggerd by phrases like: get names that have brothers up to 2 hops where name is joe
+    if distinct == 0:
+        
+        query = "MATCH ({" + reqProp + " : '" + reqPropVal + "'})" + "\n" + "-[:" + rel + queryHops + "]-> (n)" + "\n" + "RETURN n." + prop
+
+    else:
+
+        query = "MATCH ({" + reqProp + " : '" + reqPropVal + "'})" + "\n" + "-[:" + rel + queryHops + "]-> (n)" + "\n" + "RETURN DISTINCT n." + prop
+
     return query
 
 def propOfQuery( prop, label ):
@@ -137,7 +150,7 @@ def singular( word ):
 def nextKeyword( tag, idxKey ):
 
     #Look for keywords in our list
-    while tag[idxKey][0] not in keywords and idxKey < len( tag )-1:
+    while (tag[idxKey][0] not in keywords) and (idxKey < len( tag )-1) and ("that" not in tag[idxKey]):
 
         idxKey = idxKey + 1
 
@@ -149,8 +162,9 @@ def parse( tag ):
 
     #initialize modifiers
     countExist = 0
-    distint = 0
+    distinct = 0
     order = 0
+    idxKey = 0
 
     #check if any modifiers exists, then we need to change states
     for i in range( 0, len( tag ) ):
@@ -167,13 +181,16 @@ def parse( tag ):
 
             order = 1
 
-    #initialize search, currently relies on get being first keyword hit
-    idxKey = 0
+    #initialize search
     idxKey = nextKeyword( tag, idxKey )
     query = ""
     if tag[idxKey][0] not in keywords:
         
         idxKey = 0
+        if distinct == 1:
+
+            idxKey = idxKey + 1
+            
         #check if the next word is a noun
         if tag[idxKey + 1][1] == "NNS" or tag[idxKey + 1][1] == "NNPS" or tag[idxKey + 1] == "NN" or tag[idxKey +1] == "NNP":
 
@@ -191,6 +208,7 @@ def parse( tag ):
             elif attemptLength < len( tag ):
             #If we find of, the previous word is a property?   
                 if tag[idxKey+1][0] == "of":
+
 
                     idxKey = idxKey + 2
                     nodeLabel = tag[idxKey][0]
@@ -212,6 +230,9 @@ def parse( tag ):
                                 #If the next word is a plural noun, then we matched a relational query
                                 if nextWd[1] == "NNS" or nextWd[1] == "NNPS":
 
+                                    rel = singular( nextWd[0] )
+
+
                                     if order == 1:
 
                                         lastWd = tag[len( tag )-1]
@@ -219,12 +240,114 @@ def parse( tag ):
                                         if lastWd[1] == "NN" or lastWd[1] == "NNP":
                                             
                                             #get names that are parents order by size
-                                            query = "MATCH () -[:" + nextWd[0] + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY n." + lastWd[0]
+                                            query = "MATCH () -[:" + rel + "] -> (n)" + "\n" + "RETURN n." + prop + " ORDER BY (n." + lastWd[0] + ")"
                                             
                                     else:
-                                        
+
+                                        #Handle relational queries
                                         #get names that are parents
-                                        query = anyRelQuery( nextWd[0], prop )
+                                        idxKey = idxKey + 1
+                                        
+                                        if idxKey + 1 == len( tag ):
+                                            
+                                            query = anyRelQuery( rel, prop )
+
+                                        else:
+
+                                            #If there is more, keep looking
+                                            #'Between' or 'up to' will trigger a * query.
+                                            idxKey = idxKey + 1
+                                            queryHops = ""
+
+                                            if tag[idxKey][0] == ",":
+
+                                                idxKey = idxKey + 1
+
+                                            if tag[idxKey][0] == "between":
+
+                                                idxKey = idxKey + 1
+
+                                                firNum = 0
+                                                secNum = 0
+                                                #Is the string after between a number?
+                                                if tag[idxKey][1] == "CD":
+
+                                                    firNum = int( tag[idxKey][0] )
+
+                                                    idxKey = idxKey + 1
+
+                                                    while tag[idxKey][1] != "CD":
+
+                                                        idxKey = idxKey + 1
+
+                                                    if tag[idxKey][1] == "CD" and (tag[idxKey + 1][0] == "hops" or tag[idxKey + 1][0] == "levels"):
+
+                                                        secNum = int( tag[idxKey][0] )
+                                                        queryHops = " *" + str( firNum ) + ".." + str( secNum )
+                                                        idxKey = idxKey + 2
+                                                        #print( queryBetween )
+
+                                                    else:
+
+                                                        query = "Invalid hops specified"
+                                                    
+
+                                            elif tag[idxKey][0] == "up":
+
+                                                idxKey = idxKey + 1
+
+                                                if tag[idxKey][0] ==  "to":
+
+                                                    idxKey = idxKey + 1
+
+                                                if tag[idxKey][0] == "all" and (tag[idxKey + 1][0] == "hops" or tag[idxKey + 1][0] == "levels"):
+
+                                                    queryHops = " *"
+                                                    idxKey = idxKey + 2
+
+                                                elif tag[idxKey][1] == "CD" and (tag[idxKey + 1][0] == "hops" or tag[idxKey + 1][0] == "levels"):
+
+                                                    queryHops = " *" + str( tag[idxKey][0] )
+                                                    idxKey = idxKey + 2
+
+                                                else:
+
+                                                    query = "Invalid hops specified"
+                                            
+                                            #If there is a where, then specified source property template matched
+                                            if tag[idxKey][0] == "where":
+
+                                                idxKey = idxKey + 1
+
+                                                if tag[idxKey][0] == "source":
+
+                                                    idxKey = idxKey + 1
+
+                                                    while tag[idxKey][1] != "NN":
+
+                                                        idxKey = idxKey + 1
+
+                                                    reqProp = tag[idxKey][0]
+
+                                                    if tag[idxKey][1] == "NN" or tag[idxKey][1] == "NNP" or tag[idxKey][1] == "JJ":
+
+                                                        reqPropVal = tag[idxKey + 1][0]
+
+                                                        query = propRelQuery( reqProp, reqPropVal, rel, queryHops, prop, distinct )
+
+                                                    else:
+
+                                                        while tag[idxKey][1] != "NN" or tag[idxKey][1] != "JJ":
+
+                                                            idxKey = idxKey + 1
+
+                                                        if tag[idxKey][1] == "NN" or tag[idxKey][1] == "NNP" or tag[idxKey][1] == "JJ":
+                                                            
+                                                            propVal = tag[idxKey][0]
+                                                            
+                                                            query = propRelQuery( reqProp, reqPropVal, rel, queryHops, prop, distinct )                                
+
+                                                                                                          
                     else:
                     
                         if len( tag ) == 4:
@@ -242,7 +365,7 @@ def parse( tag ):
 
         query = handleKeyword( tag, idxKey, countExist )
         
-    #print( query )
+    print( query )
             
     return query
 
@@ -693,6 +816,6 @@ def handleKeyword( tag, idxKey, countExist ):
         
     return queryPart
 
-#tag = getInput()
-#parse( tag )
+tag = getInput()
+parse( tag )
 

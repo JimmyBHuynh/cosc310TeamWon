@@ -38,10 +38,10 @@ class ParseTest( unittest.TestCase ):
 
     def testGr2( self ):
         
-        phrase = "Get nodes where salaries is greater than 100000"
+        phrase = "Get names where salaries is greater than 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary > 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary > 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testGrC1( self ):
@@ -54,18 +54,18 @@ class ParseTest( unittest.TestCase ):
 
     def testGrC2( self ):
         
-        phrase = "Get count of nodes where salaries is greater than 100000"
+        phrase = "Get count of names where salaries is greater than 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary > 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary > 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testGrE1( self ):
 
-        phrase = "Get nodes where salaries is greater than or equal to 100000"
+        phrase = "Get names where salaries is greater than or equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary >= 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary >= 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testGrE2( self ):
@@ -78,10 +78,10 @@ class ParseTest( unittest.TestCase ):
 
     def testGrEC1( self ):
 
-        phrase = "Get count nodes where salaries is greater than or equal to 100000"
+        phrase = "Get count of names where salaries is greater than or equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary >= 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary >= 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testGrEC2( self ):
@@ -94,10 +94,10 @@ class ParseTest( unittest.TestCase ):
 
     def testLe1( self ):
 
-        phrase = "Get nodes where salaries is less than 100000"
+        phrase = "Get names where salaries is less than 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary < 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary < 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testLe2( self ):
@@ -110,10 +110,10 @@ class ParseTest( unittest.TestCase ):
 
     def testLeC1( self ):
 
-        phrase = "Get count of nodes where salaries is less than 100000"
+        phrase = "Get count of names where salaries is less than 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary < 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary < 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testLeC2( self ):
@@ -126,10 +126,10 @@ class ParseTest( unittest.TestCase ):
 
     def testLeE1( self ):
 
-        phrase = "Get nodes where salaries is less than or equal to 100000"
+        phrase = "Get names where salaries is less than or equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary <= 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary <= 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testLeE2( self ):
@@ -142,10 +142,10 @@ class ParseTest( unittest.TestCase ):
 
     def testLeEC1( self ):
 
-        phrase = "Get count of nodes where salaries is less than or equal to 100000"
+        phrase = "Get count of names where salaries is less than or equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary <= 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary <= 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testLeEC2( self ):
@@ -158,10 +158,10 @@ class ParseTest( unittest.TestCase ):
 
     def testE1( self ):
 
-        phrase = "Get nodes where salaries is equal to 100000"
+        phrase = "Get names where salaries is equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary = 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary = 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testE2( self ):
@@ -174,10 +174,10 @@ class ParseTest( unittest.TestCase ):
 
     def testEC1( self ):
 
-        phrase = "Get count of nodes where salaries is equal to 100000"
+        phrase = "Get count of names where salaries is equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary = 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary = 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testEC2( self ):
@@ -190,10 +190,10 @@ class ParseTest( unittest.TestCase ):
         
     def testNotE1( self ):
 
-        phrase = "Get nodes where salaries is not equal to 100000"
+        phrase = "Get names where salaries is not equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary <> 100000\nRETURN n.salary"
+        compare = "MATCH (n)\nWHERE n.salary <> 100000\nRETURN n.name"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testNotE2( self ):
@@ -206,10 +206,10 @@ class ParseTest( unittest.TestCase ):
 
     def testNotEC1( self ):
 
-        phrase = "Get count nodes where salaries is not equal to 100000"
+        phrase = "Get count of names where salaries is not equal to 100000"
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
-        compare = "MATCH (n)\nWHERE n.salary <> 100000\nRETURN COUNT (n.salary)"
+        compare = "MATCH (n)\nWHERE n.salary <> 100000\nRETURN COUNT (n.name)"
         self.assertEqual( parse.parse( tag ), compare )
 
     def testNotEC2( self ):
@@ -332,6 +332,86 @@ class ParseTest( unittest.TestCase ):
         tokens = nltk.word_tokenize( phrase.lower() )
         tag = nltk.pos_tag( tokens )
         compare = "MATCH (n)\nWHERE n.name IS NULL\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testanyRelQuery( self ):
+
+        phrase = "get names of nodes that have brothers"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH () -[:brother] -> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testanyRelQueryOrder( self ):
+        
+        phrase = "get names of nodes that have brothers order by size"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH () -[:brother] -> (n)\nRETURN n.name ORDER BY (n.size)"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery( self ):
+
+        phrase = "get names of nodes that have brothers where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery2( self ):
+        
+        phrase = "get names of nodes that have brothers up to 2 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *2]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery3( self ):
+        
+        phrase = "get names of nodes that have brothers up to all hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery4( self ):
+        
+        phrase = "get names of nodes that have brothers between 2 to 4 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *2..4]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery5( self ):
+
+        phrase = "get distinct names of nodes that have brothers where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery6( self ):
+        
+        phrase = "get distinct names of nodes that have brothers up to 2 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *2]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery7( self ):
+        
+        phrase = "get distinct names of nodes that have brothers up to all hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropRelQuery8( self ):
+        
+        phrase = "get distinct names of nodes that have brothers between 2 to 4 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother *2..4]-> (n)\nRETURN DISTINCT n.name"
         self.assertEqual( parse.parse( tag ), compare )
         
 if __name__ == '__main__':
