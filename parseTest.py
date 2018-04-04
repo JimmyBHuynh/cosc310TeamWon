@@ -413,6 +413,70 @@ class ParseTest( unittest.TestCase ):
         tag = nltk.pos_tag( tokens )
         compare = "MATCH ({name : 'joe'})\n-[:brother *2..4]-> (n)\nRETURN DISTINCT n.name"
         self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery( self ):
+
+        phrase = "get names of nodes that have brothers or parents where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery2( self ):
+        
+        phrase = "get names of nodes that have brothers or parents up to 2 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *2]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery3( self ):
+        
+        phrase = "get names of nodes that have brothers or parents up to all hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery4( self ):
+        
+        phrase = "get names of nodes that have brothers or parents between 2 to 4 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *2..4]-> (n)\nRETURN n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery5( self ):
+
+        phrase = "get distinct names of nodes that have brothers or parents where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery6( self ):
+        
+        phrase = "get distinct names of nodes that have brothers or parents up to 2 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *2]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery7( self ):
+        
+        phrase = "get distinct names of nodes that have brothers or parents up to all hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
+
+    def testpropOrRelQuery8( self ):
+        
+        phrase = "get distinct names of nodes that have brothers or parents between 2 to 4 hops where source has name joe"
+        tokens = nltk.word_tokenize( phrase.lower() )
+        tag = nltk.pos_tag( tokens )
+        compare = "MATCH ({name : 'joe'})\n-[:brother | parent *2..4]-> (n)\nRETURN DISTINCT n.name"
+        self.assertEqual( parse.parse( tag ), compare )
         
 if __name__ == '__main__':
     
