@@ -259,6 +259,15 @@ def parse( tag ):
                                             idxKey = idxKey + 1
                                             queryHops = ""
 
+                                            if tag[idxKey][0] == "or":
+
+                                                idxKey = idxKey + 1
+
+                                                if tag[idxKey][1] == "NNS" or tag[idxKey][1] == "NNPS" or tag[idxKey][1] == "NN" or tag[idxKey][1] == "NNP":
+
+                                                    rel = rel + " | " + singular( tag[idxKey][0] )
+                                                    idxKey = idxKey + 1
+
                                             if tag[idxKey][0] == ",":
 
                                                 idxKey = idxKey + 1
