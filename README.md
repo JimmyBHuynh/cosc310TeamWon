@@ -1,7 +1,7 @@
 # cosc310TeamWon
-MIT License
+MIT License ? Check if client wants this
 
-Copyright (c) 2018 Robert Teodoropol, 
+Copyright (c) 2018 Robert Teodoropol, [OTHER PEOPLE NEED TO SIGN]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
